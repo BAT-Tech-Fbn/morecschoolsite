@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Créer une Session - Questions Interactives{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="mb-4">Créer une nouvelle session interactive</h1>
+            <p class="lead mb-4">Configurez votre session pour recueillir des questions et interagir avec votre audience.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'accueil_interactive' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="row mb-4">
+            <div class="col-12">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form method="post" action="{% url 'creer_session' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.titre.id_for_label }}" class="form-label">{{ form.titre.label_tag }}</label>
+                            {{ form.titre }}
+                            {% if form.titre.help_text %}
+                                <small class="form-text text-muted">{{ form.titre.help_text }}</small>
+                            {% endif %}
+                            {% if form.titre.errors %}
+                                <div class="invalid-feedback d-block">{{ form.titre.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.help_text %}
+                                <small class="form-text text-muted">{{ form.description.help_text }}</small>
+                            {% endif %}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4 form-check">
+                            {{ form.est_moderee }}
+                            <label class="form-check-label" for="{{ form.est_moderee.id_for_label }}">
+                                {{ form.est_moderee.label }}
+                            </label>
+                            {% if form.est_moderee.help_text %}
+                                <div class="form-text text-muted small">{{ form.est_moderee.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play-circle me-2"></i> Créer la session
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card bg-light border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Conseils pour votre session</h5>
+                    <ul class="mb-0">
+                        <li class="mb-2">Donnez un titre clair qui décrit le sujet de votre session</li>
+                        <li class="mb-2">Ajoutez une description détaillée pour que les participants comprennent le contexte</li>
+                        <li class="mb-2">Activez la modération si vous voulez filtrer les questions avant qu'elles ne soient visibles</li>
+                        <li>Vous pourrez modifier ces paramètres à tout moment</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Fonctionnalités disponibles</h5>
+                    <ul class="mb-0">
+                        <li class="mb-2">Questions et réponses en direct</li>
+                        <li class="mb-2">Votes des participants</li>
+                        <li class="mb-2">Questions anonymes (option)</li>
+                        <li>Modération des questions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

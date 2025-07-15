@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Accueil - MorecSchool{% endblock %}
+
+{% block banner_content %}
+<section class="hero" id="heroSlider">
+
+    {% for slide in slider_images %}
+    <div class="hero-slide {% if forloop.first %}active{% endif %}" id="slide{{ forloop.counter }}">
+      <div class="hero-slide-container">
+        <div class="hero-image">
+          <picture>
+            {% if slide.image_webp %}
+            <source srcset="{{ slide.image_webp.url }}" type="image/webp">
+            {% endif %}
+            <img src="{{ slide.image.url }}" alt="{{ slide.titre }}">
+          </picture>
+        </div>
+        <div class="hero-text">
+          <h1>{{ slide.titre }}</h1>
+          <p>{{ slide.sous_titre }}</p>
+          <a href="{{ slide.url_bouton }}" class="cta-btn">{{ slide.texte_bouton }}</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <!-- Slides par défaut si aucune image n'est définie dans le modèle SliderImage -->
+    <div class="hero-slide active" id="slide1">
+      <div class="hero-slide-container">
+        <div class="hero-image">
+          <picture>
+            <source srcset="{% static 'medias/IMG-20250407-WA0160.webp' %}" type="image/webp">
+            <img src="{% static 'medias/IMG-20250407-WA0160.jpg' %}" alt="Leadership">
+          </picture>
+        </div>
+        <div class="hero-text">
+          <h1>Bienvenue à MOREC SCHOOL</h1>
+          <p>Développez votre leadership avec nous</p>
+          <a href="{% url 'register' %}" class="cta-btn">Rejoindre notre communauté</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-slide" id="slide2">
+      <div class="hero-slide-container">
+        <div class="hero-image">
+          <picture>
+            <source srcset="{% static 'medias/WonderfulCreative-39.webp' %}" type="image/webp">
+            <img src="{% static 'medias/WonderfulCreative-39.jpg' %}" alt="Bienvenue">
+          </picture>
+        </div>
+        <div class="hero-text">
+          <h1>ÉQUIPER LES LEADERS D'AUJOURD'HUI ET DE DEMAIN</h1>
+          <p>Nous formons les leaders de toutes tendances</p>
+          <a href="{% url 'cours_list' %}" class="cta-btn">Découvrir les programmes</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="hero-slide" id="slide3">
+      <div class="hero-slide-container">
+        <div class="hero-image">
+          <picture>
+            <source srcset="{% static 'medias/Wonderful Creative-33.webp' %}" type="image/webp">
+            <img src="{% static 'medias/Wonderful Creative-33.jpg' %}" alt="Vision">
+          </picture>
+        </div>
+        <div class="hero-text">
+          <h1>Construisons une génération de leaders</h1>
+          <p>Chaque leader éclairé transforme sa communauté.</p>
+          <a href="{% url 'a_propos' %}" class="cta-btn">Faire un don ou devenir un partenaire</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slides = document.querySelectorAll('.hero-slide');
+    let currentSlide = 0;
+
+    // Fonction pour afficher une slide spécifique
+    function showSlide(index) {
+        // Cacher toutes les slides
+        slides.forEach((slide) => {
+            slide.classList.remove('active');
+            slide.style.zIndex = '1';
+        });
+        
+        // Afficher la slide active
+        slides[index].classList.add('active');
+        slides[index].style.zIndex = '2';
+        
+        // Précharger les images pour éviter les problèmes d'affichage
+        const nextIndex = (index + 1) % slides.length;
+        if (!slides[nextIndex].classList.contains('preloaded')) {
+            slides[nextIndex].classList.add('preloaded');
+        }
+    }
+
+    // Démarrer le slider automatique
+    const slideInterval = setInterval(() => {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }, 5000); // Change de slide toutes les 5 secondes
+
+    // Afficher la première slide au chargement
+    showSlide(currentSlide);
+    
+    // Précharger toutes les images
+    slides.forEach(slide => {
+        const img = slide.querySelector('img');
+        if (img) {
+            const preloadImg = new Image();
+            preloadImg.src = img.src;
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Section Interactive Slido -->
+<div class="container-fluid bg-primary py-5 mb-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <h2 class="text-white display-5 fw-bold mb-3">Sessions Interactives</h2>
+        <p class="text-white lead mb-4">Participez en direct à nos sessions, posez vos questions, votez pour les meilleures et engagez-vous dans la discussion!</p>
+        <div class="d-flex gap-3">
+          <a href="{% url 'accueil_interactive' %}" class="btn btn-light btn-lg">
+            <i class="fas fa-comments me-2"></i>Rejoindre une session
+          </a>
+          {% if user.is_authenticated and user.is_staff %}
+          <a href="{% url 'creer_session' %}" class="btn btn-outline-light btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>Créer une session
+          </a>
+          {% endif %}
+        </div>
+        
+        <!-- Formulaire de code de session -->
+        <div class="card mt-4 bg-white bg-opacity-10 border-0">
+          <div class="card-body p-4">
+            <h5 class="card-title text-white">Accéder rapidement</h5>
+            <form action="{% url 'accueil_interactive' %}" method="post" class="d-flex">
+              {% csrf_token %}
+              <div class="flex-grow-1 me-2">
+                {{ code_session_form.code }}
+              </div>
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-arrow-right"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <!-- Image d'illustration pour grands écrans -->
+        <div class="d-none d-lg-block text-center mb-4">
+          <img src="{% static 'img/interactive-illustration.svg' %}" alt="Sessions interactives" class="img-fluid" style="max-height: 180px;" onerror="this.src='https://via.placeholder.com/500x300/0d6efd/ffffff?text=Sessions+Interactives'">
+        </div>
+        
+        <!-- Sessions actives -->
+        {% if sessions_actives %}
+        <div class="card bg-white bg-opacity-10 border-0">
+          <div class="card-body p-4">
+            <h5 class="card-title text-white mb-4">Sessions en cours</h5>
+            <div class="list-group">
+              {% for session in sessions_actives %}
+              <a href="{% url 'session_interactive' session.slug %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center bg-transparent border-light border-opacity-25 mb-2">
+                <div>
+                  <h6 class="mb-1 text-white">{{ session.titre }}</h6>
+                  <small class="text-white-50">{{ session.date_creation|date:"d/m/Y H:i" }}</small>
+                </div>
+                <span class="badge rounded-pill bg-success">Active</span>
+              </a>
+              {% endfor %}
+            </div>
+            {% if sessions_actives.count > 3 %}
+            <div class="text-center mt-3">
+              <a href="{% url 'accueil_interactive' %}" class="btn btn-outline-light btn-sm">Voir toutes les sessions</a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section de contenu principal -->
+<h2 class="text-center mb-4">Témoignages de nos participants</h2>
+<div class="container mb-5">
+  <div class="row">
+    {% for temoignage in temoignages %}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <blockquote class="blockquote mb-0 text-center">
+              <p class="mb-2" style="font-size:1.05rem;">"{{ temoignage.contenu|truncatechars:120 }}"</p>
+              <footer class="blockquote-footer">{{ temoignage.nom }}</footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center text-muted">Aucun témoignage pour l'instant.</div>
+    {% endfor %}
+  </div>
+  {% if is_paginated %}
+    <div class="text-center">
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-primary">Savoir plus</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+<h2 class="text-center mb-4">Vidéos de formation</h2>
+<div class="row justify-content-center">
+    {% for video in videos %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <a href="{{ video.fichier.url }}" target="_blank" style="display:block;text-decoration:none;">
+                <video class="card-img-top" style="width:100%;max-height:180px;object-fit:cover;background:#222;" preload="metadata" muted>
+                    <source src="{{ video.fichier.url }}#t=0.5" type="video/mp4">
+                    Votre navigateur ne supporte pas la lecture vidéo.
+                </video>
+            </a>
+            <div class="card-body text-center">
+    <h6 class="card-title mb-0" style="font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ video.titre }}</h6>
+</div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+    <!-- Formulaire de témoignage -->
+    <div class="container my-5" style="max-width:600px;">
+        <h3 class="mb-3 text-center">Laisser un témoignage</h3>
+        {% if temoignage_message %}
+            <div class="alert alert-success">{{ temoignage_message }}</div>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <form method="post" action="" class="card p-3 shadow-sm">
+            {% csrf_token %}
+            {{ temoignage_form.non_field_errors }}
+            <div class="mb-3" style="display:none;">
+                {{ temoignage_form.nom }}
+            </div>
+            <div class="mb-3">
+                {{ temoignage_form.contenu.label_tag }}
+                {{ temoignage_form.contenu }}
+                {% if temoignage_form.contenu.errors %}
+                    <div class="text-danger small">{{ temoignage_form.contenu.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" name="temoignage-submit" class="btn btn-primary">Envoyer</button>
+        </form>
+        {% else %}
+        <div class="alert alert-info text-center">Vous devez être <a href="/login/">connecté</a> pour laisser un témoignage.</div>
+        {% endif %}
+    </div>
+    <!-- Formulaire de témoignage -->
+{% endblock %}

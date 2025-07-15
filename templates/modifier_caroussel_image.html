@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Modifier le titre de l'image - MorecSchool{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Modifier le titre de l'image</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.titre.label_tag }}
+            {{ form.titre }}
+            {% if form.titre.errors %}
+                <div class="text-danger small">{{ form.titre.errors|striptags }}</div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+        <a href="{% url 'enregistrer_caroussel_image' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+    <div class="mt-4">
+        <img src="{{ image.image.url }}" alt="Aperçu" style="max-width:320px; border-radius:8px;">
+    </div>
+</div>
+{% endblock %}

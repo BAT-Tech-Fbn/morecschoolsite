@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Liste des MasterClasses{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>MasterClasses</h1>
+            <p class="lead">Liste des sessions de formation d'excellence</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'ajouter_masterclass' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Nouvelle MasterClass
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for masterclass in masterclasses %}
+        <div class="col">
+            <div class="card h-100">
+                {% if masterclass.images.first %}
+                <img src="{{ masterclass.images.first.image.url }}" class="card-img-top" alt="{{ masterclass.theme }}">
+                {% else %}
+                <div class="card-img-top bg-light text-center py-5">
+                    <i class="fas fa-image fa-3x text-secondary"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ masterclass.theme }}</h5>
+                    <p class="card-text">{{ masterclass.description|truncatechars:100 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if masterclass.publie %}
+                            <span class="badge bg-success">Publié</span>
+                            {% else %}
+                            <span class="badge bg-warning">Non publié</span>
+                            {% endif %}
+                        </div>
+                        <div class="btn-group">
+                            <a href="{% url 'detail_masterclass' masterclass.id %}" class="btn btn-sm btn-outline-primary">Voir</a>
+                            <a href="{% url 'modifier_masterclass' masterclass.id %}" class="btn btn-sm btn-outline-secondary">Modifier</a>
+                            <a href="{% url 'supprimer_masterclass' masterclass.id %}" class="btn btn-sm btn-outline-danger">Supprimer</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        Animateurs:
+                        {% for animateur in masterclass.animateurs.all %}
+                            {{ animateur.prenom }} {{ animateur.nom }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Aucun animateur
+                        {% endfor %}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Aucune MasterClass n'a été créée pour le moment.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Événements - MorecSchool{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Nos Événements</h1>
+    {% if user.is_authenticated and user.is_staff %}
+    <a href="/ajouter-evenement/" class="btn btn-primary">Ajouter un événement</a>
+    {% endif %}
+</div>
+<div class="row g-4">
+    {% for event in evenements %}
+    <div class="col-12">
+        <div style="background:#aeb0b7; padding:18px 20px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+            <div style="color:#181c5b; font-weight:bold; font-size:1.1rem;">
+                {% load l10n %}
+                {% for d in event.dates.all %}
+                    {% localize on %}{{ d.date|date:'j F Y'|capfirst }}{% endlocalize %} : {{ d.heure_debut|time:'H\h' }} - {{ d.heure_fin|time:'H\h' }} GMT+1<br>
+                {% endfor %}
+            </div>
+            <div style="background:#6c1010; color:#fff; font-size:1.3rem; font-weight:500; padding:9px 12px; margin:12px 0 6px 0; border-radius:3px;">
+                {{ event.titre }}
+            </div>
+            <div style="color:#181c5b;">
+                Thème : <span style="color:#181c5b;">{{ event.theme }}</span>
+                <span style="color:#ffe600; font-weight:bold; margin-left:12px;">Participation : {{ event.frais }} $</span>
+            </div>
+            <div class="mt-3 d-flex gap-2">
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAffiche{{ event.id }}">En savoir plus</button>
+
+<!-- Modal Affiche -->
+<div class="modal fade" id="modalAffiche{{ event.id }}" tabindex="-1" aria-labelledby="modalAfficheLabel{{ event.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAfficheLabel{{ event.id }}">Affiche de l'événement : {{ event.titre }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body text-center">
+        {% if event.affiche_evenement %}
+          <img src="{{ event.affiche_evenement.url }}" alt="Affiche de l'événement" style="max-width:100%; max-height:400px; border-radius:8px; box-shadow:0 2px 10px #888;">
+        {% else %}
+          <span class="text-muted">Aucune affiche disponible pour cet événement.</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+                <a href="{% url 'register' %}?event={{ event.id }}" class="btn btn-light border">S'inscrire</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">Aucun événement à venir.</div>
+    {% endfor %}
+</div>
+{% endblock %}

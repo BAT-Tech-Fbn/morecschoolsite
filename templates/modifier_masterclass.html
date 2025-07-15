@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modifier une MasterClass{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Modifier la MasterClass</h1>
+            <p class="lead">{{ masterclass.theme }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <h4>Informations générales</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.theme.id_for_label }}" class="form-label">Thème de la MasterClass</label>
+                                {{ form.theme }}
+                                {% if form.theme.errors %}
+                                <div class="text-danger">{{ form.theme.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                <div class="text-danger">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.date_debut.id_for_label }}" class="form-label">Date de début</label>
+                                {{ form.date_debut }}
+                                {% if form.date_debut.errors %}
+                                <div class="text-danger">{{ form.date_debut.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.date_fin.id_for_label }}" class="form-label">Date de fin</label>
+                                {{ form.date_fin }}
+                                {% if form.date_fin.errors %}
+                                <div class="text-danger">{{ form.date_fin.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.animateurs.id_for_label }}" class="form-label">Animateurs</label>
+                                {{ form.animateurs }}
+                                {% if form.animateurs.errors %}
+                                <div class="text-danger">{{ form.animateurs.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    {{ form.publie }}
+                                    <label for="{{ form.publie.id_for_label }}" class="form-check-label">Publier</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4>Images</h4>
+                        {{ image_formset.management_form }}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div id="image-formsets">
+                                    {% for form in image_formset %}
+                                    <div class="image-form row mb-3 p-2 border rounded {% if form.instance.pk %}border-success{% endif %}">
+                                        {% if form.instance.pk %}
+                                        <div class="col-12 mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ form.instance.image.url }}" alt="{{ form.instance.legende|default:'Image' }}" class="img-thumbnail" style="max-height: 100px;">
+                                                <div class="ms-3">
+                                                    <small class="text-muted">Image actuelle</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if form.non_field_errors %}
+                                        <div class="col-12 text-danger mb-2">
+                                            {{ form.non_field_errors }}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="col-md-6 mb-2">
+                                            <label for="{{ form.image.id_for_label }}" class="form-label">Image</label>
+                                            {{ form.image }}
+                                            {% if form.image.errors %}
+                                            <div class="text-danger">{{ form.image.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-2">
+                                            <label for="{{ form.legende.id_for_label }}" class="form-label">Légende</label>
+                                            {{ form.legende }}
+                                            {% if form.legende.errors %}
+                                            <div class="text-danger">{{ form.legende.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-2 mb-2">
+                                            <label for="{{ form.ordre.id_for_label }}" class="form-label">Ordre</label>
+                                            {{ form.ordre }}
+                                            {% if form.ordre.errors %}
+                                            <div class="text-danger">{{ form.ordre.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                {{ form.DELETE }}
+                                                <label class="form-check-label text-danger" for="{{ form.DELETE.id_for_label }}">Supprimer cette image</label>
+                                            </div>
+                                        </div>
+                                        
+                                        {{ form.id }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" id="add-image" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Ajouter une image
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <h4>Vidéos</h4>
+                        {{ video_formset.management_form }}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div id="video-formsets">
+                                    {% for form in video_formset %}
+                                    <div class="video-form row mb-3 p-2 border rounded {% if form.instance.pk %}border-success{% endif %}">
+                                        {% if form.instance.pk %}
+                                        <div class="col-12 mb-2">
+                                            {% if form.instance.url %}
+                                            <div class="alert alert-info">
+                                                URL actuelle: {{ form.instance.url }}
+                                            </div>
+                                            {% endif %}
+                                            {% if form.instance.fichier %}
+                                            <div class="alert alert-info">
+                                                Fichier actuel: {{ form.instance.fichier.name }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if form.non_field_errors %}
+                                        <div class="col-12 text-danger mb-2">
+                                            {{ form.non_field_errors }}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="col-md-6 mb-2">
+                                            <label for="{{ form.titre.id_for_label }}" class="form-label">Titre</label>
+                                            {{ form.titre }}
+                                            {% if form.titre.errors %}
+                                            <div class="text-danger">{{ form.titre.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-2">
+                                            <label for="{{ form.ordre.id_for_label }}" class="form-label">Ordre</label>
+                                            {{ form.ordre }}
+                                            {% if form.ordre.errors %}
+                                            <div class="text-danger">{{ form.ordre.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-12 mb-2">
+                                            <label for="{{ form.url.id_for_label }}" class="form-label">URL (YouTube, etc.)</label>
+                                            {{ form.url }}
+                                            {% if form.url.errors %}
+                                            <div class="text-danger">{{ form.url.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-12 mb-2">
+                                            <label for="{{ form.fichier.id_for_label }}" class="form-label">Fichier vidéo (optionnel)</label>
+                                            {{ form.fichier }}
+                                            {% if form.fichier.errors %}
+                                            <div class="text-danger">{{ form.fichier.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-12 mb-2">
+                                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                                            {{ form.description }}
+                                            {% if form.description.errors %}
+                                            <div class="text-danger">{{ form.description.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                {{ form.DELETE }}
+                                                <label class="form-check-label text-danger" for="{{ form.DELETE.id_for_label }}">Supprimer cette vidéo</label>
+                                            </div>
+                                        </div>
+                                        
+                                        {{ form.id }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" id="add-video" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Ajouter une vidéo
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="{% url 'detail_masterclass' masterclass.id %}" class="btn btn-secondary me-2">Annuler</a>
+                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des formsets d'images
+    const addImageBtn = document.getElementById('add-image');
+    const imageFormsets = document.getElementById('image-formsets');
+    const imageFormsCount = document.getElementById('id_imagemasterclass_set-TOTAL_FORMS');
+    
+    if (addImageBtn && imageFormsets && imageFormsCount) {
+        addImageBtn.addEventListener('click', function() {
+            const formCount = parseInt(imageFormsCount.value);
+            const newForm = document.querySelector('.image-form').cloneNode(true);
+            
+            // Supprimer les aperçus d'image existants
+            const previews = newForm.querySelectorAll('.img-thumbnail');
+            previews.forEach(preview => {
+                const parentDiv = preview.closest('.col-12');
+                if (parentDiv) {
+                    parentDiv.remove();
+                }
+            });
+            
+            // Mettre à jour les IDs et noms des champs
+            let newHtml = newForm.innerHTML;
+            newHtml = newHtml.replace(/imagemasterclass_set-\d+/g, `imagemasterclass_set-${formCount}`);
+            newForm.innerHTML = newHtml;
+            
+            // Réinitialiser les valeurs
+            const inputs = newForm.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.type !== 'hidden') {
+                    input.value = '';
+                }
+            });
+            
+            // Supprimer la classe de bordure de succès
+            newForm.classList.remove('border-success');
+            
+            imageFormsets.appendChild(newForm);
+            imageFormsCount.value = formCount + 1;
+        });
+    }
+    
+    // Gestion des formsets de vidéos
+    const addVideoBtn = document.getElementById('add-video');
+    const videoFormsets = document.getElementById('video-formsets');
+    const videoFormsCount = document.getElementById('id_videomasterclass_set-TOTAL_FORMS');
+    
+    if (addVideoBtn && videoFormsets && videoFormsCount) {
+        addVideoBtn.addEventListener('click', function() {
+            const formCount = parseInt(videoFormsCount.value);
+            const newForm = document.querySelector('.video-form').cloneNode(true);
+            
+            // Supprimer les alertes d'information sur les fichiers existants
+            const alerts = newForm.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const parentDiv = alert.closest('.col-12');
+                if (parentDiv) {
+                    parentDiv.remove();
+                }
+            });
+            
+            // Mettre à jour les IDs et noms des champs
+            let newHtml = newForm.innerHTML;
+            newHtml = newHtml.replace(/videomasterclass_set-\d+/g, `videomasterclass_set-${formCount}`);
+            newForm.innerHTML = newHtml;
+            
+            // Réinitialiser les valeurs
+            const inputs = newForm.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.type !== 'hidden') {
+                    input.value = '';
+                }
+            });
+            
+            // Supprimer la classe de bordure de succès
+            newForm.classList.remove('border-success');
+            
+            videoFormsets.appendChild(newForm);
+            videoFormsCount.value = formCount + 1;
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

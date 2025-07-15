@@ -1,0 +1,365 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ajouter une MasterClass{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Ajouter une nouvelle MasterClass</h1>
+            <p class="lead">Complétez le formulaire ci-dessous</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <h4>Informations générales</h4>
+                        <div class="row mb-4">
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.theme.id_for_label }}" class="form-label">Thème de la MasterClass</label>
+                                {{ form.theme }}
+                                {% if form.theme.errors %}
+                                <div class="text-danger">{{ form.theme.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                <div class="text-danger">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.date_debut.id_for_label }}" class="form-label">Date de début</label>
+                                {{ form.date_debut }}
+                                {% if form.date_debut.errors %}
+                                <div class="text-danger">{{ form.date_debut.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.date_fin.id_for_label }}" class="form-label">Date de fin</label>
+                                {{ form.date_fin }}
+                                {% if form.date_fin.errors %}
+                                <div class="text-danger">{{ form.date_fin.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.animateurs.id_for_label }}" class="form-label">Animateurs</label>
+                                {{ form.animateurs }}
+                                {% if form.animateurs.errors %}
+                                <div class="text-danger">{{ form.animateurs.errors }}</div>
+                                {% endif %}
+                                <div class="form-text">
+                                    <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#addAnimateurModal">
+                                        <i class="fas fa-plus-circle"></i> Ajouter un nouvel animateur
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    {{ form.publie }}
+                                    <label for="{{ form.publie.id_for_label }}" class="form-check-label">Publier immédiatement</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4>Images</h4>
+                        {{ image_formset.management_form }}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div id="image-formsets">
+                                    {% for form in image_formset.forms %}
+                                    <div class="image-form row mb-3 p-2 border rounded">
+                                        {% if form.non_field_errors %}
+                                        <div class="col-12 text-danger mb-2">
+                                            {{ form.non_field_errors }}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="col-md-6 mb-2">
+                                            <label for="{{ form.image.id_for_label }}" class="form-label">Image</label>
+                                            {{ form.image }}
+                                            {% if form.image.errors %}
+                                            <div class="text-danger">{{ form.image.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-2">
+                                            <label for="{{ form.legende.id_for_label }}" class="form-label">Légende</label>
+                                            {{ form.legende }}
+                                            {% if form.legende.errors %}
+                                            <div class="text-danger">{{ form.legende.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-2 mb-2">
+                                            <label for="{{ form.ordre.id_for_label }}" class="form-label">Ordre</label>
+                                            {{ form.ordre }}
+                                            {% if form.ordre.errors %}
+                                            <div class="text-danger">{{ form.ordre.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if forloop.counter > 1 %}
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                {{ form.DELETE }}
+                                                <label class="form-check-label text-danger">Supprimer cette image</label>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {{ form.id }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" id="add-image" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Ajouter une image
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <h4>Vidéos</h4>
+                        {{ video_formset.management_form }}
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div id="video-formsets">
+                                    {% for form in video_formset.forms %}
+                                    <div class="video-form row mb-3 p-2 border rounded">
+                                        {% if form.non_field_errors %}
+                                        <div class="col-12 text-danger mb-2">
+                                            {{ form.non_field_errors }}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="col-md-6 mb-2">
+                                            <label for="{{ form.titre.id_for_label }}" class="form-label">Titre</label>
+                                            {{ form.titre }}
+                                            {% if form.titre.errors %}
+                                            <div class="text-danger">{{ form.titre.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-2">
+                                            <label for="{{ form.ordre.id_for_label }}" class="form-label">Ordre</label>
+                                            {{ form.ordre }}
+                                            {% if form.ordre.errors %}
+                                            <div class="text-danger">{{ form.ordre.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-12 mb-2">
+                                            <label for="{{ form.url.id_for_label }}" class="form-label">URL (YouTube, etc.)</label>
+                                            {{ form.url }}
+                                            {% if form.url.errors %}
+                                            <div class="text-danger">{{ form.url.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-12 mb-2">
+                                            <label for="{{ form.fichier.id_for_label }}" class="form-label">Fichier vidéo (optionnel)</label>
+                                            {{ form.fichier }}
+                                            {% if form.fichier.errors %}
+                                            <div class="text-danger">{{ form.fichier.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-12 mb-2">
+                                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                                            {{ form.description }}
+                                            {% if form.description.errors %}
+                                            <div class="text-danger">{{ form.description.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if forloop.counter > 1 %}
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                {{ form.DELETE }}
+                                                <label class="form-check-label text-danger">Supprimer cette vidéo</label>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {{ form.id }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button type="button" id="add-video" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Ajouter une vidéo
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="{% url 'liste_masterclasses' %}" class="btn btn-secondary me-2">Annuler</a>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour ajouter un animateur -->
+<div class="modal fade" id="addAnimateurModal" tabindex="-1" aria-labelledby="addAnimateurModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAnimateurModalLabel">Ajouter un animateur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="animateur-form">
+                    <div class="mb-3">
+                        <label for="animateur-nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="animateur-nom" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="animateur-prenom" class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="animateur-prenom" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="animateur-titre" class="form-label">Titre</label>
+                        <input type="text" class="form-control" id="animateur-titre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="animateur-bio" class="form-label">Biographie</label>
+                        <textarea class="form-control" id="animateur-bio" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="animateur-photo" class="form-label">Photo</label>
+                        <input type="file" class="form-control" id="animateur-photo">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="save-animateur">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des formsets d'images
+    const addImageBtn = document.getElementById('add-image');
+    const imageFormsets = document.getElementById('image-formsets');
+    const imageFormsCount = document.getElementById('id_imagemasterclass_set-TOTAL_FORMS');
+    
+    if (addImageBtn && imageFormsets && imageFormsCount) {
+        addImageBtn.addEventListener('click', function() {
+            const formCount = parseInt(imageFormsCount.value);
+            const newForm = document.querySelector('.image-form').cloneNode(true);
+            
+            // Mettre à jour les IDs et noms des champs
+            newForm.innerHTML = newForm.innerHTML.replaceAll(
+                /imagemasterclass_set-0/g, 
+                `imagemasterclass_set-${formCount}`
+            );
+            
+            // Réinitialiser les valeurs
+            const inputs = newForm.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.type !== 'hidden') {
+                    input.value = '';
+                }
+            });
+            
+            // Ajouter le bouton de suppression
+            const deleteDiv = document.createElement('div');
+            deleteDiv.className = 'col-12';
+            deleteDiv.innerHTML = `
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="id_imagemasterclass_set-${formCount}-DELETE" name="imagemasterclass_set-${formCount}-DELETE">
+                    <label class="form-check-label text-danger">Supprimer cette image</label>
+                </div>
+            `;
+            
+            if (!newForm.querySelector('.form-check')) {
+                newForm.appendChild(deleteDiv);
+            }
+            
+            imageFormsets.appendChild(newForm);
+            imageFormsCount.value = formCount + 1;
+        });
+    }
+    
+    // Gestion des formsets de vidéos
+    const addVideoBtn = document.getElementById('add-video');
+    const videoFormsets = document.getElementById('video-formsets');
+    const videoFormsCount = document.getElementById('id_videomasterclass_set-TOTAL_FORMS');
+    
+    if (addVideoBtn && videoFormsets && videoFormsCount) {
+        addVideoBtn.addEventListener('click', function() {
+            const formCount = parseInt(videoFormsCount.value);
+            const newForm = document.querySelector('.video-form').cloneNode(true);
+            
+            // Mettre à jour les IDs et noms des champs
+            newForm.innerHTML = newForm.innerHTML.replaceAll(
+                /videomasterclass_set-0/g, 
+                `videomasterclass_set-${formCount}`
+            );
+            
+            // Réinitialiser les valeurs
+            const inputs = newForm.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.type !== 'hidden') {
+                    input.value = '';
+                }
+            });
+            
+            // Ajouter le bouton de suppression
+            const deleteDiv = document.createElement('div');
+            deleteDiv.className = 'col-12';
+            deleteDiv.innerHTML = `
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="id_videomasterclass_set-${formCount}-DELETE" name="videomasterclass_set-${formCount}-DELETE">
+                    <label class="form-check-label text-danger">Supprimer cette vidéo</label>
+                </div>
+            `;
+            
+            if (!newForm.querySelector('.form-check')) {
+                newForm.appendChild(deleteDiv);
+            }
+            
+            videoFormsets.appendChild(newForm);
+            videoFormsCount.value = formCount + 1;
+        });
+    }
+    
+    // Gestion du modal pour ajouter un animateur
+    const saveAnimateurBtn = document.getElementById('save-animateur');
+    if (saveAnimateurBtn) {
+        saveAnimateurBtn.addEventListener('click', function() {
+            // Cette fonction serait implémentée avec AJAX pour enregistrer l'animateur
+            // sans recharger la page, puis ajouter l'option au select des animateurs
+            alert('Fonctionnalité à implémenter avec AJAX');
+            
+            // Fermer le modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addAnimateurModal'));
+            modal.hide();
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

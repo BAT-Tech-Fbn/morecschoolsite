@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Connexion - MorecSchool{% endblock %}
+{% block content %}
+<div class="container-fluid d-flex align-items-center justify-content-center" style="min-height:90vh;">
+  <div class="row w-100 shadow-lg rounded-4 overflow-hidden" style="max-width:900px;">
+    <div class="col-md-6 d-flex flex-column justify-content-center align-items-center login-blue-panel p-5">
+      <div class="w-100 text-center">
+        <img src="/static/logo.png" alt="MorecSchool Logo" style="max-width:120px; margin-bottom:24px;">
+        <h3 class="text-white mb-3">MorecSchool</h3>
+        <p class="text-white-50 mb-4">Nous faisons de vous des leaders qui se démarquent.<br>Développez vos compétences, boostez votre carrière, rejoignez notre communauté !</p>
+      </div>
+    </div>
+    <div class="col-md-6 bg-white d-flex flex-column justify-content-center p-5">
+      <h3 class="mb-4 text-center">Connexion</h3>
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form.visible_fields %}
+          <div class="mb-3">
+            <input 
+              type="{{ field.field.widget.input_type }}" 
+              name="{{ field.html_name }}" 
+              class="form-control" 
+              id="id_{{ field.html_name }}" 
+              placeholder="{% if field.name == 'username' %}Adresse email ou nom d'utilisateur{% elif field.name == 'password' %}Mot de passe{% else %}{{ field.label }}{% endif %}"
+              {% if field.field.required %}required{% endif %}
+              autocomplete="{{ field.name }}"
+            >
+            {% if field.errors %}
+              <div class="text-danger small">{{ field.errors|striptags }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <button type="submit" name="login" class="btn btn-primary w-100 mb-3">Se connecter</button>
+      </form>
+      <div class="text-center mb-2">
+        <a href="/register/" class="link-secondary">Vous n'avez pas de compte ? S'inscrire ici</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<style>
+.login-blue-panel {
+  background: #1565ef;
+  min-height: 350px;
+}
+@media (max-width: 767px) {
+  .login-blue-panel { min-height: 180px; padding: 2rem 1rem !important; }
+}
+</style>
+{% endblock %}

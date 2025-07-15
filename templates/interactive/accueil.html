@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Questions Interactives - MorecSchool{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 text-center">
+            <h1 class="display-4 mb-3">Questions Interactives</h1>
+            <p class="lead mb-4">Participez en temps réel à nos sessions interactives. Posez des questions, votez pour vos favoris et engagez-vous dans la discussion.</p>
+            
+            {% if user.is_authenticated and user.is_staff %}
+                <a href="{% url 'creer_session' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i> Créer une nouvelle session
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if messages %}
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    
+    {% if message %}
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="card-title text-center mb-4">Rejoindre une session</h3>
+                    <form method="post" action="{% url 'accueil_interactive' %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <div class="invalid-feedback d-block">{{ form.code.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Rejoindre</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <h3 class="mb-4">Sessions actives</h3>
+            
+            {% if sessions_actives %}
+                <div class="row g-4">
+                {% for session in sessions_actives %}
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <h5 class="card-title mb-0">{{ session.titre }}</h5>
+                                    <span class="badge rounded-pill bg-success">Active</span>
+                                </div>
+                                <p class="card-text text-muted">{{ session.description|truncatewords:20 }}</p>
+                            </div>
+                            <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Code: <strong>{{ session.code }}</strong></small>
+                                <a href="{% url 'session_interactive' session_slug=session.slug %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-arrow-right me-1"></i> Accéder
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i> Aucune session active en ce moment. Revenez plus tard ou créez votre propre session.
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Statistiques -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                        <div>
+                            <h6 class="mb-0">Sessions créées</h6>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary rounded-pill fs-6">{{ stats.sessions }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                        <div>
+                            <h6 class="mb-0">Questions posées</h6>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary rounded-pill fs-6">{{ stats.questions }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                        <div>
+                            <h6 class="mb-0">Votes total</h6>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary rounded-pill fs-6">{{ stats.votes }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sessions récentes -->
+            {% if recent_sessions %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i> Sessions récentes</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for session in recent_sessions %}
+                    <a href="{% url 'session_interactive' session_slug=session.slug %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">{{ session.titre }}</h6>
+                            <small class="text-muted">{{ session.date_creation|date:"d/m/Y" }}</small>
+                        </div>
+                        {% if session.est_active %}
+                        <span class="badge bg-success rounded-pill">Active</span>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Comment ça fonctionne -->
+<div class="bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Comment ça fonctionne ?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 bg-transparent">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-comments fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Posez vos questions</h5>
+                        <p class="card-text">Envoyez vos questions au présentateur pendant la session. Vous pouvez rester anonyme si vous le souhaitez.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 bg-transparent">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-thumbs-up fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Votez pour les meilleures</h5>
+                        <p class="card-text">Soutenez les questions qui vous intéressent le plus en votant pour elles. Les plus populaires apparaîtront en haut.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 bg-transparent">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-poll fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Participez aux sondages</h5>
+                        <p class="card-text">Répondez aux sondages en direct et voyez instantanément les résultats partagés avec tous les participants.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

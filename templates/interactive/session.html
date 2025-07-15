@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ session.titre }} - Session Interactive{% endblock %}
+
+{% block meta %}
+<meta name="session-slug" content="{{ session.slug }}">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .question-card {
+        transition: all 0.3s ease;
+    }
+    .question-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .question-pinned {
+        border-left: 4px solid #0d6efd;
+    }
+    .question-answered {
+        background-color: #f8f9fa;
+    }
+    .vote-btn {
+        cursor: pointer;
+    }
+    .vote-btn.active {
+        color: #0d6efd;
+    }
+    .vote-count {
+        font-weight: bold;
+    }
+    .sort-option.active {
+        font-weight: bold;
+        color: #0d6efd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-7">
+            <h1 class="mb-0">{{ session.titre }}</h1>
+            <p class="lead text-muted mb-2">Code: <span class="badge bg-primary">{{ session.code }}</span></p>
+            <p>{{ session.description }}</p>
+        </div>
+        <div class="col-md-5 text-md-end">
+            <a href="{% url 'accueil_interactive' %}" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            {% if user == session.createur or user.is_staff %}
+                <a href="{% url 'gestion_session' session_slug=session.slug %}" class="btn btn-primary">
+                    <i class="fas fa-cog me-1"></i> Gérer la session
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="row mb-4">
+            <div class="col-12">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Colonne principale -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Questions</h5>
+                    <div>
+                        <span class="me-2">Trier par:</span>
+                        <a href="?sort=-votes_positifs" class="sort-option {% if sort == '-votes_positifs' %}active{% endif %}">Plus votées</a> | 
+                        <a href="?sort=-date_creation" class="sort-option {% if sort == '-date_creation' %}active{% endif %}">Plus récentes</a> | 
+                        <a href="?sort=date_creation" class="sort-option {% if sort == 'date_creation' %}active{% endif %}">Plus anciennes</a>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush" id="questions-container">
+                    {% for question in questions %}
+                        <div class="list-group-item question-card {% if question.est_epinglee %}question-pinned{% endif %} {% if question.est_repondue %}question-answered{% endif %}" id="question-{{ question.id }}" data-question-id="{{ question.id }}">
+                            <div class="d-flex">
+                                <!-- Vote section -->
+                                <div class="pe-3 text-center" style="width: 50px;">
+                                    <div class="vote-btn {% if user.is_authenticated and question.votes.filter(utilisateur=user).exists %}active{% endif %}" data-question-id="{{ question.id }}" data-vote-url="{% url 'voter_question' question_id=question.id %}">
+                                        <i class="fas fa-caret-up fa-2x"></i>
+                                    </div>
+                                    <div id="vote-count-{{ question.id }}" class="vote-count">{{ question.votes.count }}</div>
+                                </div>
+                                
+                                <!-- Question content -->
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <div>
+                                            {% if question.est_anonyme %}
+                                                <span class="badge bg-secondary me-2">Anonyme</span>
+                                            {% else %}
+                                                <span class="fw-bold me-1">{{ question.auteur.username }}</span>
+                                            {% endif %}
+                                            <small class="text-muted">{{ question.date_creation|timesince }}</small>
+                                        </div>
+                                        <div>
+                                            {% if question.est_epinglee %}
+                                                <span class="badge bg-primary"><i class="fas fa-thumbtack me-1"></i>Épinglée</span>
+                                            {% endif %}
+                                            {% if question.est_repondue %}
+                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Répondue</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <p class="mb-0">{{ question.contenu }}</p>
+                                    
+                                    {% if question.type == 'sondage' %}
+                                        <div class="mt-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Sondage</h6>
+                                                    <form id="sondage-form-{{ question.id }}" class="mt-2">
+                                                        {% csrf_token %}
+                                                        {% for option in question.options.all %}
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="radio" name="sondage-{{ question.id }}" id="option-{{ option.id }}" value="{{ option.id }}">
+                                                                <label class="form-check-label" for="option-{{ option.id }}">
+                                                                    {{ option.texte }}
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                        <button type="submit" class="btn btn-sm btn-primary mt-2">Voter</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if question.type == 'quiz' %}
+                                        <div class="mt-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Quiz</h6>
+                                                    <form id="quiz-form-{{ question.id }}" class="mt-2">
+                                                        {% csrf_token %}
+                                                        {% for reponse in question.reponses_quiz.all %}
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="radio" name="quiz-{{ question.id }}" id="reponse-{{ reponse.id }}" value="{{ reponse.id }}">
+                                                                <label class="form-check-label" for="reponse-{{ reponse.id }}">
+                                                                    {{ reponse.texte }}
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                        <button type="submit" class="btn btn-sm btn-primary mt-2">Répondre</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Staff controls -->
+                                {% if user == session.createur or user.is_staff %}
+                                    <div class="ps-3">
+                                        <button class="btn btn-sm btn-outline-primary pin-question-btn" data-question-id="{{ question.id }}" data-url="{% url 'epingler_question' question_id=question.id %}">
+                                            <i class="fas {% if question.est_epinglee %}fa-unlink{% else %}fa-thumbtack{% endif %} me-1"></i> 
+                                            {% if question.est_epinglee %}Désépingler{% else %}Épingler{% endif %}
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success ms-1 mark-answered-btn" data-question-id="{{ question.id }}" data-url="{% url 'marquer_repondue' question_id=question.id %}">
+                                            <i class="fas {% if question.est_repondue %}fa-undo{% else %}fa-check-circle{% endif %} me-1"></i> 
+                                            {% if question.est_repondue %}Marquer comme non répondue{% else %}Marquer comme répondue{% endif %}
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="list-group-item py-4 text-center">
+                            <p class="mb-0 text-muted">Aucune question pour le moment. Soyez le premier à en poser une !</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonne latérale -->
+        <div class="col-lg-4">
+            <!-- Poser une question -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Posez une question</h5>
+                    
+                    {% if user.is_authenticated %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ question_form.contenu }}
+                                {% if question_form.contenu.errors %}
+                                    <div class="invalid-feedback d-block">{{ question_form.contenu.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Type de question</label>
+                                {{ question_form.type }}
+                                {% if question_form.type.errors %}
+                                    <div class="invalid-feedback d-block">{{ question_form.type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                {{ question_form.est_anonyme }}
+                                <label class="form-check-label" for="{{ question_form.est_anonyme.id_for_label }}">
+                                    {{ question_form.est_anonyme.label }}
+                                </label>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" name="submit_question" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Envoyer
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p class="mb-2">Vous devez être connecté pour poser une question.</p>
+                            <a href="{% url 'connexion' %}?next={{ request.path }}" class="btn btn-sm btn-primary">Se connecter</a>
+                            <a href="{% url 'register' %}?next={{ request.path }}" class="btn btn-sm btn-outline-secondary">S'inscrire</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Informations sur la session -->
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h5 class="card-title">À propos de cette session</h5>
+                    <p class="mb-2"><strong>Créateur:</strong> {{ session.createur.username }}</p>
+                    <p class="mb-2"><strong>Date de création:</strong> {{ session.date_creation|date:"d/m/Y H:i" }}</p>
+                    <p class="mb-2">
+                        <strong>Modération:</strong> 
+                        {% if session.est_moderee %}
+                            <span class="badge bg-info">Activée</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Désactivée</span>
+                        {% endif %}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Nombre de questions:</strong> {{ questions.count }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Toastr pour les notifications -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Notre fichier JavaScript pour les sessions interactives -->
+<script src="{% static 'js/interactive.js' %}"></script>
+
+<script>
+    // Configuration de toastr
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-bottom-right",
+        "timeOut": "3000",
+    };
+    
+    // Variables globales
+    const sessionSlug = document.querySelector('meta[name="session-slug"]').content;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+</script>
+{% endblock %}

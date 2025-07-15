@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestion - {{ session.titre }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="mb-0">Gestion de session</h1>
+            <p class="lead text-muted mb-2">{{ session.titre }} <span class="badge bg-primary">Code: {{ session.code }}</span></p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'session_interactive' session_slug=session.slug %}" class="btn btn-outline-primary">
+                <i class="fas fa-eye me-1"></i> Voir la session
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="row mb-4">
+            <div class="col-12">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Colonne principale -->
+        <div class="col-lg-8">
+            <!-- Section des questions en attente de modération -->
+            {% if session.est_moderee %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-warning-subtle">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Questions en attente de modération 
+                            <span class="badge bg-warning text-dark">{{ questions_attente.count }}</span>
+                        </h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for question in questions_attente %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        {% if question.est_anonyme %}
+                                            <span class="badge bg-secondary me-2">Anonyme</span>
+                                        {% else %}
+                                            <span class="fw-bold me-1">{{ question.auteur.username }}</span>
+                                        {% endif %}
+                                        <small class="text-muted">{{ question.date_creation|timesince }}</small>
+                                    </div>
+                                </div>
+                                <p class="mb-3">{{ question.contenu }}</p>
+                                <div class="d-flex">
+                                    <a href="{% url 'approuver_question' question_id=question.id %}" class="btn btn-sm btn-success me-2">
+                                        <i class="fas fa-check me-1"></i> Approuver
+                                    </a>
+                                    <a href="{% url 'rejeter_question' question_id=question.id %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-ban me-1"></i> Rejeter
+                                    </a>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="list-group-item py-3 text-center">
+                                <p class="mb-0 text-muted">Aucune question en attente de modération</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Toutes les questions de la session -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Toutes les questions</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Auteur</th>
+                                <th>Votes</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for question in toutes_questions %}
+                                <tr {% if question.est_epinglee %}class="table-primary"{% endif %}>
+                                    <td>
+                                        {% if question.est_epinglee %}<i class="fas fa-thumbtack text-primary me-1"></i>{% endif %}
+                                        {{ question.contenu|truncatechars:50 }}
+                                    </td>
+                                    <td>
+                                        {% if question.est_anonyme %}
+                                            <span class="badge bg-secondary">Anonyme</span>
+                                        {% else %}
+                                            {{ question.auteur.username }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ question.votes_positifs }}</td>
+                                    <td>
+                                        {% if question.statut == 'approuvee' %}
+                                            <span class="badge bg-success">Approuvée</span>
+                                        {% elif question.statut == 'attente' %}
+                                            <span class="badge bg-warning text-dark">En attente</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Rejetée</span>
+                                        {% endif %}
+                                        
+                                        {% if question.est_repondue %}
+                                            <span class="badge bg-info">Répondue</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                {% if question.statut == 'attente' %}
+                                                    <li><a class="dropdown-item" href="{% url 'approuver_question' question_id=question.id %}">
+                                                        <i class="fas fa-check me-2"></i> Approuver
+                                                    </a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'rejeter_question' question_id=question.id %}">
+                                                        <i class="fas fa-ban me-2"></i> Rejeter
+                                                    </a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                {% endif %}
+                                                <li><button class="dropdown-item toggle-pin" data-question-id="{{ question.id }}">
+                                                    {% if question.est_epinglee %}
+                                                        <i class="fas fa-thumbtack me-2"></i> Désépingler
+                                                    {% else %}
+                                                        <i class="fas fa-thumbtack me-2"></i> Épingler
+                                                    {% endif %}
+                                                </button></li>
+                                                <li><button class="dropdown-item toggle-answered" data-question-id="{{ question.id }}">
+                                                    {% if question.est_repondue %}
+                                                        <i class="fas fa-times-circle me-2"></i> Marquer comme non répondue
+                                                    {% else %}
+                                                        <i class="fas fa-check-circle me-2"></i> Marquer comme répondue
+                                                    {% endif %}
+                                                </button></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-3">
+                                        <p class="mb-0 text-muted">Aucune question dans cette session</p>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonne latérale -->
+        <div class="col-lg-4">
+            <!-- Paramètres de la session -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Paramètres de la session</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'gestion_session' session_slug=session.slug %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.titre.id_for_label }}" class="form-label">{{ form.titre.label }}</label>
+                            {{ form.titre }}
+                            {% if form.titre.errors %}
+                                <div class="invalid-feedback d-block">{{ form.titre.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.est_active }}
+                            <label class="form-check-label" for="{{ form.est_active.id_for_label }}">
+                                {{ form.est_active.label }}
+                            </label>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.est_moderee }}
+                            <label class="form-check-label" for="{{ form.est_moderee.id_for_label }}">
+                                {{ form.est_moderee.label }}
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" name="update_session" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Informations sur la session -->
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Statistiques</h5>
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
+                            Questions totales
+                            <span class="badge bg-primary rounded-pill">{{ toutes_questions.count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
+                            Questions approuvées
+                            <span class="badge bg-success rounded-pill">{{ toutes_questions|dictsortreversed:"statut"|dictsort:"approuvee"|length }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
+                            Questions en attente
+                            <span class="badge bg-warning text-dark rounded-pill">{{ questions_attente.count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
+                            Date de création
+                            <span>{{ session.date_creation|date:"d/m/Y H:i" }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des épingles
+        document.querySelectorAll('.toggle-pin').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                togglePin(questionId);
+            });
+        });
+        
+        // Gestion des réponses
+        document.querySelectorAll('.toggle-answered').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                toggleAnswered(questionId);
+            });
+        });
+    });
+    
+    // Fonction pour épingler/désépingler
+    function togglePin(questionId) {
+        fetch(`/interactive/question/${questionId}/epingler/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur de connexion');
+            }
+            return response.json();
+        })
+        .then(data => {
+            location.reload(); // Recharger la page pour réorganiser les questions
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
+    }
+    
+    // Fonction pour marquer comme répondue/non répondue
+    function toggleAnswered(questionId) {
+        fetch(`/interactive/question/${questionId}/marquer-repondue/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur de connexion');
+            }
+            return response.json();
+        })
+        .then(data => {
+            location.reload(); // Recharger pour mettre à jour l'interface
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
+    }
+</script>
+{% endblock %}

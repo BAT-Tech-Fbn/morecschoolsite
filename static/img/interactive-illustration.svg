@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="500" height="300" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond avec léger dégradé -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond -->
+  <rect width="500" height="300" fill="url(#bg-gradient)" rx="10" ry="10" />
+  
+  <!-- Grande bulle de conversation -->
+  <g transform="translate(250, 150) scale(0.8)">
+    <path d="M-150,-100 C-180,-100 -200,-80 -200,-50 L-200,30 C-200,60 -180,80 -150,80 L20,80 L50,110 L80,80 L150,80 C180,80 200,60 200,30 L200,-50 C200,-80 180,-100 150,-100 Z" 
+          fill="#ffffff" 
+          stroke="#ffffff" 
+          stroke-width="8"/>
+  </g>
+  
+  <!-- Petite bulle 1 -->
+  <g transform="translate(100, 80) scale(0.4)">
+    <path d="M-150,-100 C-180,-100 -200,-80 -200,-50 L-200,30 C-200,60 -180,80 -150,80 L20,80 L50,110 L80,80 L150,80 C180,80 200,60 200,30 L200,-50 C200,-80 180,-100 150,-100 Z" 
+          fill="#ffffff" 
+          stroke="#ffffff" 
+          stroke-width="8"/>
+  </g>
+  
+  <!-- Petite bulle 2 -->
+  <g transform="translate(350, 210) scale(0.35)">
+    <path d="M-150,-100 C-180,-100 -200,-80 -200,-50 L-200,30 C-200,60 -180,80 -150,80 L20,80 L50,110 L80,80 L150,80 C180,80 200,60 200,30 L200,-50 C200,-80 180,-100 150,-100 Z" 
+          fill="#ffffff" 
+          stroke="#ffffff" 
+          stroke-width="8"/>
+  </g>
+  
+  <!-- Icônes dans la bulle principale -->
+  <!-- Icône pouce en l'air -->
+  <g transform="translate(200, 140) scale(0.8)">
+    <circle cx="0" cy="0" r="25" fill="#ffffff" stroke="#0d6efd" stroke-width="3"/>
+    <path d="M-5,-5 L-5,10 L-15,10 L-15,15 L15,15 C20,15 20,5 15,5 L5,5 L5,-5 C5,-10 -5,-10 -5,-5Z" 
+          fill="#0d6efd" 
+          transform="translate(0, -5)"/>
+  </g>
+  
+  <!-- Icône question -->
+  <g transform="translate(260, 140)">
+    <circle cx="0" cy="0" r="20" fill="#ffffff" stroke="#0d6efd" stroke-width="3"/>
+    <text x="0" y="7" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#0d6efd">?</text>
+  </g>
+  
+  <!-- Icône sondage -->
+  <g transform="translate(320, 140) scale(0.8)">
+    <circle cx="0" cy="0" r="25" fill="#ffffff" stroke="#0d6efd" stroke-width="3"/>
+    <rect x="-15" y="0" width="8" height="15" fill="#0d6efd" />
+    <rect x="-5" y="-5" width="8" height="20" fill="#0d6efd" />
+    <rect x="5" y="-10" width="8" height="25" fill="#0d6efd" />
+  </g>
+  
+  <!-- Personnes stylisées -->
+  <!-- Personne 1 -->
+  <g transform="translate(120, 200)">
+    <circle cx="0" cy="-20" r="15" fill="#ffffff" stroke="#0d6efd" stroke-width="3"/>
+    <path d="M0,0 L0,40 M-15,15 L15,15 M-15,60 L0,40 L15,60" stroke="#ffffff" stroke-width="5"/>
+  </g>
+  
+  <!-- Personne 2 -->
+  <g transform="translate(160, 210)">
+    <circle cx="0" cy="-20" r="12" fill="#ffffff" stroke="#0d6efd" stroke-width="3"/>
+    <path d="M0,0 L0,30 M-12,12 L12,12 M-12,45 L0,30 L12,45" stroke="#ffffff" stroke-width="5"/>
+  </g>
+  
+  <!-- Texte "Q&A Live" -->
+  <text x="250" y="50" font-family="Arial" font-size="28" font-weight="bold" text-anchor="middle" fill="#ffffff">Q&A Live</text>
+  
+  <!-- Petits cercles décoratifs -->
+  <circle cx="100" cy="250" r="10" fill="#ffffff" opacity="0.3" />
+  <circle cx="380" cy="80" r="15" fill="#ffffff" opacity="0.3" />
+  <circle cx="420" cy="260" r="12" fill="#ffffff" opacity="0.3" />
+  <circle cx="50" cy="130" r="8" fill="#ffffff" opacity="0.3" />
+</svg>

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load l10n %}
+{% block content %}
+<a href="/ajouter-evenement/" class="btn btn-success mb-3">Ajouter un événement</a>
+<table class="table table-bordered" style="background:#fff;">
+    <thead style="background:#f0f0f0;">
+        <tr>
+            <th>Titre</th>
+            <th>Thème</th>
+            <th>Affiche</th>
+            <th>Dates</th>
+            <th>Frais</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in evenements %}
+        <tr>
+            <td>{{ event.titre }}</td>
+            <td>{{ event.theme }}</td>
+            <td>
+                {% if event.affiche_evenement %}
+                    <img src="{{ event.affiche_evenement.url }}" alt="Affiche" style="max-height:60px; max-width:90px; border-radius:4px; box-shadow:0 1px 4px #aaa;">
+                {% else %}
+                    <span class="text-muted">Aucune</span>
+                {% endif %}
+            </td>
+            <td>
+                <ul style="padding-left:1em;">
+                {% for d in event.dates.all %}
+                    <li>{% localize on %}{{ d.date|date:'j F Y'|capfirst }}{% endlocalize %} : {{ d.heure_debut|time:'H\h' }} - {{ d.heure_fin|time:'H\h' }}</li>
+                {% endfor %}
+                </ul>
+            </td>
+            <td>{{ event.frais }}</td>
+            <td>
+                <a href="{% url 'modifier_evenement' event.id %}" class="btn btn-primary btn-sm">Modifier</a>
+                <a href="{% url 'supprimer_evenement' event.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer cet événement ?');">Supprimer</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">Aucun événement</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

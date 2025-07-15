@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Gestion des membres - MorecSchool{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Liste des membres enregistrés</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Nom</th>
+                <th>Poste</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Numéro téléphone</th>
+                <th>Ville</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for membre in membres %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ membre.nom }}</td>
+                <td>{{ membre.post }}</td>
+                <td>{{ membre.prenom }}</td>
+                <td>{{ membre.email }}</td>
+                <td>{{ membre.numero_telephone }}</td>
+                <td>{{ membre.ville }}</td>
+                <td>
+                    <a href="#" class="btn btn-sm btn-primary">Voir</a>
+                    <a href="#" class="btn btn-sm btn-warning">Modifier</a>
+                    <a href="#" class="btn btn-sm btn-danger">Supprimer</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center">Aucun membre enregistré pour le moment.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

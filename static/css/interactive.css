@@ -1,0 +1,118 @@
+/* Styles pour la fonctionnalité Slido */
+
+.question-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.question-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+.question-pinned {
+    border-left: 4px solid #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.question-answered {
+    background-color: #f8f9fa;
+    border-left: 4px solid #198754;
+}
+
+.vote-btn {
+    cursor: pointer;
+    color: #6c757d;
+    transition: all 0.2s ease;
+}
+
+.vote-btn:hover {
+    color: #0d6efd;
+    transform: translateY(-2px);
+}
+
+.vote-btn.active {
+    color: #0d6efd;
+}
+
+.vote-count {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.sort-option {
+    color: #6c757d;
+    text-decoration: none;
+    margin-right: 1rem;
+}
+
+.sort-option:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+.sort-option.active {
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+/* Animation pour les votes */
+@keyframes vote-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.vote-animate {
+    animation: vote-pulse 0.5s ease;
+}
+
+/* Styles pour les différents types de questions */
+.question-type-sondage {
+    border-left: 4px solid #6f42c1;
+}
+
+.question-type-nuage {
+    border-left: 4px solid #fd7e14;
+}
+
+.question-type-quiz {
+    border-left: 4px solid #20c997;
+}
+
+/* Badge pour les questions anonymes */
+.anonymous-badge {
+    background-color: #6c757d;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+/* Section d'accueil sur la page principale */
+.interactive-banner {
+    background: linear-gradient(135deg, #0d6efd, #0a58ca);
+    padding: 3rem 0;
+    color: white;
+}
+
+.interactive-banner h2 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.interactive-banner .lead {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .vote-btn {
+        font-size: 1.2rem;
+    }
+    
+    .vote-count {
+        font-size: 1rem;
+    }
+}

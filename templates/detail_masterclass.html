@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ masterclass.theme }} | MasterClass{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{{ masterclass.theme }}</h1>
+            {% if not masterclass.publie %}
+            <span class="badge bg-warning">Non publié</span>
+            {% endif %}
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'modifier_masterclass' masterclass.id %}" class="btn btn-primary me-2">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <a href="{% url 'liste_masterclasses' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row mb-5">
+        <div class="col-md-8">
+            <!-- Description -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Description</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ masterclass.description }}</p>
+                </div>
+            </div>
+            
+            <!-- Informations -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Informations</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Date de création
+                            <span>{{ masterclass.date_creation|date:"d/m/Y H:i" }}</span>
+                        </li>
+                        {% if masterclass.date_debut %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Date de début
+                            <span>{{ masterclass.date_debut|date:"d/m/Y H:i" }}</span>
+                        </li>
+                        {% endif %}
+                        {% if masterclass.date_fin %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Date de fin
+                            <span>{{ masterclass.date_fin|date:"d/m/Y H:i" }}</span>
+                        </li>
+                        {% endif %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Statut
+                            <span class="badge {% if masterclass.publie %}bg-success{% else %}bg-warning{% endif %}">
+                                {% if masterclass.publie %}Publié{% else %}Non publié{% endif %}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Animateurs -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Animateurs</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for animateur in masterclass.animateurs.all %}
+                        <li class="list-group-item">
+                            <div class="d-flex align-items-center">
+                                {% if animateur.photo %}
+                                <img src="{{ animateur.photo.url }}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="{{ animateur.prenom }} {{ animateur.nom }}">
+                                {% else %}
+                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    {{ animateur.prenom|first }}{{ animateur.nom|first }}
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-0">{{ animateur.prenom }} {{ animateur.nom }}</h6>
+                                    <small class="text-muted">{{ animateur.titre }}</small>
+                                </div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">Aucun animateur assigné</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Images -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-4">Images</h3>
+            
+            {% if masterclass.images.exists %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for image in masterclass.images.all %}
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.legende|default:'Image' }}">
+                        <div class="card-body">
+                            <p class="card-text">{{ image.legende|default:"Sans légende" }}</p>
+                            <p class="card-text"><small class="text-muted">Ordre d'affichage: {{ image.ordre }}</small></p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                Aucune image n'a été ajoutée à cette MasterClass.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Vidéos -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4">Vidéos</h3>
+            
+            {% if masterclass.videos.exists %}
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for video in masterclass.videos.all %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ video.titre }}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if video.url %}
+                            <div class="ratio ratio-16x9 mb-3">
+                                <iframe src="{{ video.url }}" title="{{ video.titre }}" allowfullscreen></iframe>
+                            </div>
+                            {% elif video.fichier %}
+                            <div class="ratio ratio-16x9 mb-3">
+                                <video controls>
+                                    <source src="{{ video.fichier.url }}" type="video/mp4">
+                                    Votre navigateur ne prend pas en charge la lecture de vidéos.
+                                </video>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning">
+                                Aucun contenu vidéo disponible.
+                            </div>
+                            {% endif %}
+                            
+                            <p class="card-text">{{ video.description|default:"Aucune description" }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Ordre d'affichage: {{ video.ordre }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                Aucune vidéo n'a été ajoutée à cette MasterClass.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

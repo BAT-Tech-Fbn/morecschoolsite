@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Réglages - MorecSchool{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h2 class="mb-4">Réglages du site</h2>
+            <div class="d-grid gap-3">
+                <a href="{% url 'enregistrer_caroussel_image' %}" class="btn btn-primary btn-lg">Gérer les images du carrousel</a>
+                <a href="{% url 'enregistrer_video' %}" class="btn btn-success btn-lg">Uploader une vidéo de formation</a>
+                <a href="{% url 'gestion_temoignages' %}" class="btn btn-warning btn-lg">Gérer les témoignages</a>
+                <a href="{% url 'liste_masterclasses' %}" class="btn btn-info btn-lg">Gérer les MasterClasses</a>
+                <a href="{% url 'gestion_utilisateurs' %}" class="btn btn-dark btn-lg">Gérer les utilisateurs</a>
+                <!-- Tu peux ajouter d'autres boutons pour d'autres réglages ici -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

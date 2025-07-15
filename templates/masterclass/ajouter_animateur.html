@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ajouter un Animateur{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Ajouter un nouvel animateur</h1>
+            <p class="lead">Complétez le formulaire ci-dessous</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+
+                                {{ form.nom }}
+                                {% if form.nom.errors %}
+                                <div class="text-danger">{{ form.nom.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+
+                                {{ form.prenom }}
+                                {% if form.prenom.errors %}
+                                <div class="text-danger">{{ form.prenom.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+
+                            {{ form.titre }}
+                            {% if form.titre.errors %}
+                            <div class="text-danger">{{ form.titre.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+
+                            {{ form.bio }}
+                            {% if form.bio.errors %}
+                            <div class="text-danger">{{ form.bio.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+
+                            {{ form.photo }}
+                            {% if form.photo.errors %}
+                            <div class="text-danger">{{ form.photo.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Format recommandé : image carrée, minimum 300x300 pixels</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="{% url 'liste_animateurs' %}" class="btn btn-secondary me-2">Annuler</a>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

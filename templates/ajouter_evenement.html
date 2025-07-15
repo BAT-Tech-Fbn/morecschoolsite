@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Ajouter un événement - MorecSchool{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height:60vh;">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-lg border-0">
+            <div class="card-body">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <a href="/gestion-evenements/" class="btn btn-primary">Gestion des événements</a>
+                </div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+    {{ form.titre }}
+    {% if form.titre.help_text %}<div class="form-text">{{ form.titre.help_text }}</div>{% endif %}
+    {% if form.titre.errors %}
+        <div class="text-danger small">{{ form.titre.errors|striptags }}</div>
+    {% endif %}
+</div>
+<div class="mb-3">
+    {{ form.theme }}
+    {% if form.theme.help_text %}<div class="form-text">{{ form.theme.help_text }}</div>{% endif %}
+    {% if form.theme.errors %}
+        <div class="text-danger small">{{ form.theme.errors|striptags }}</div>
+    {% endif %}
+</div>
+<div class="mb-3">
+    {{ form.frais }}
+    {% if form.frais.help_text %}<div class="form-text">{{ form.frais.help_text }}</div>{% endif %}
+    {% if form.frais.errors %}
+        <div class="text-danger small">{{ form.frais.errors|striptags }}</div>
+    {% endif %}
+</div>
+<div class="mb-3">
+    <label for="id_affiche_evenement" class="form-label">Affiche de l'événement</label>
+    {{ form.affiche_evenement }}
+    {% if form.affiche_evenement.help_text %}<div class="form-text">{{ form.affiche_evenement.help_text }}</div>{% endif %}
+    {% if form.affiche_evenement.errors %}
+        <div class="text-danger small">{{ form.affiche_evenement.errors|striptags }}</div>
+    {% endif %}
+</div>
+
+                    <h5 class="mt-4">Dates et horaires de l'événement</h5>
+                    {{ formset.management_form }}
+                    <div id="dates-formset">
+                        {% for subform in formset %}
+                            <div class="border rounded p-3 mb-2 bg-light">
+                                <div class="row g-2">
+                                    {% for field in subform.visible_fields %}
+                                    <div class="col-md-4">
+                                        {{ field }}
+                                        {% if field.errors %}<div class="text-danger small">{{ field.errors|striptags }}</div>{% endif %}
+                                    </div>
+                                    {% endfor %}
+                                    <div class="col-md-2 d-flex align-items-center">
+                                        {% if formset.can_delete %}
+                                            {{ subform.DELETE }} <span>Supprimer</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary mb-3" id="add-date">Ajouter une date/heure</button>
+                    <button type="submit" class="btn btn-success w-100">Enregistrer l'événement</button>
+                </form>
+                <script>
+                // Dupliquer le dernier formulaire de date/heure à l'ajout
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.getElementById('add-date').onclick = function(e) {
+                        e.preventDefault();
+                        var formset = document.getElementById('dates-formset');
+                        var totalForms = document.getElementById('id_form-TOTAL_FORMS');
+                        var currentFormCount = parseInt(totalForms.value);
+                        var newForm = formset.children[0].cloneNode(true);
+                        // Nettoyer les valeurs
+                        newForm.querySelectorAll('input').forEach(function(input) { input.value = ''; });
+                        // Mettre à jour les index des nouveaux champs
+                        newForm.innerHTML = newForm.innerHTML.replace(/form-0/g, 'form-' + currentFormCount);
+                        formset.appendChild(newForm);
+                        totalForms.value = currentFormCount + 1;
+                    };
+                });
+                </script>
+                <div class="text-center mt-3">
+                    <a href="{% url 'evenements' %}" class="link-secondary">Retour à la liste des événements</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Inscription - MorecSchool{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height:60vh;">
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-lg border-0">
+            <div class="card-body">
+                <div class="text-end mb-3">
+                    {% if user.is_authenticated and user.is_staff %}
+                        <a href="/membres/" class="btn btn-outline-secondary">Gérer les membres</a>
+                    {% endif %}
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+    {% for field in reg_form %}
+        <div class="col-md-6 mb-3">
+            {{ field.errors }}
+            {{ field }}
+        </div>
+        {% if forloop.counter|divisibleby:2 and not forloop.last %}
+            </div><div class="row">
+        {% endif %}
+    {% endfor %}
+</div>
+                    <button type="submit" name="register" class="btn btn-success w-100">S'inscrire</button>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const sexeSelect = document.getElementById('id_sexe');
+                            if (sexeSelect && sexeSelect.options.length && sexeSelect.options[0].value !== '') {
+                                const placeholderOption = document.createElement('option');
+                                placeholderOption.textContent = 'Sexe';
+                                placeholderOption.value = '';
+                                placeholderOption.disabled = true;
+                                placeholderOption.selected = true;
+                                sexeSelect.prepend(placeholderOption);
+                            }
+                            const etatSelect = document.getElementById('id_etat_civil');
+                            if (etatSelect && etatSelect.options.length && etatSelect.options[0].value !== '') {
+                                const placeholderOption = document.createElement('option');
+                                placeholderOption.textContent = 'État civil';
+                                placeholderOption.value = '';
+                                placeholderOption.disabled = true;
+                                placeholderOption.selected = true;
+                                etatSelect.prepend(placeholderOption);
+                            }
+                        });
+                    </script>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="/connexion/" class="link-secondary">Déjà inscrit ? Se connecter ici</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+{% endblock %}
