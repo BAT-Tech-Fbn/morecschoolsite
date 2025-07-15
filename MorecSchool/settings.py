@@ -121,9 +121,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Simplified static file serving for production
-# https://warehouse.python.org/project/whitenoise/
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+# Configuration des fichiers statiques pour Heroku
+# Nous n'ajoutons pas whitenoise au middleware pour l'environnement local
 
 # Media files (uploaded images, etc.)
 MEDIA_URL = '/media/'
@@ -134,9 +133,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Configuration de la base de données Heroku
-import dj_database_url
+# Configuration de la base de données Heroku (uniquement en production)
+# Cette section sera exécutée uniquement sur Heroku où DATABASE_URL est automatiquement défini
+# En développement local, on utilise SQLite
 
-# Utilise la base de données PostgreSQL sur Heroku, sinon la base de données par défaut
-db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES['default'].update(db_from_env)
+# Vérifie si on est sur Heroku (la variable DATABASE_URL est définie automatiquement par Heroku)
+if 'DATABASE_URL' in os.environ:
+    # Import dj_database_url seulement si nécessaire
+    import dj_database_url
+    # Utilise la base de données PostgreSQL sur Heroku
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)

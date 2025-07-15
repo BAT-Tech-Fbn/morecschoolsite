@@ -1,3 +1,4 @@
+# Python
 *.pyc
 __pycache__/
 *.py[cod]
@@ -19,13 +20,41 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Django
 db.sqlite3
+media/
+local_settings.py
+
+# Environnement virtuel
 .env
 .venv
 venv/
 venv312/
 ENV/
-*.log
-local_settings.py
-media/
+
+# Éléments spécifiques au système
 .DS_Store
+.idea/
+.vscode/
+*.swp
+*.bak
+
+# Fichiers de déploiement
+*.zip
+static_collected/
+staticfiles/
+
+# Fichiers de logs
+*.log
+logs/
+
+# Fichiers temporaires
+*.tmp
+*.temp
+
+# Fichiers potentiellement sensibles
+.env.local
+.env.development
+.env.production
+
